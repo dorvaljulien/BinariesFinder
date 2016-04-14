@@ -1,0 +1,91 @@
+This is a binary star detection software.
+
+It can be considered a plug-in to StarFiddle, a Nbody API:
+https://github.com/dorvaljulien/StarFiddle
+BinariesFinder uses sorting and kdtree algoritms provided in StarFiddle. The input data is HDF5 file created by StarFiddle from Nbody runs.
+
+------------------------------------------------------------------------------------------------
+
+
+The algorithm is as follow:
+- For each star, check the neighbours to find a bound pair
+- If a bound pair is found, two densities are computed: local density, defined
+  by Nnb neighbours around the central star, ann binary density, defined by the central star
+  and the bound companion, on a sphere defined by their computed maximum separation in a 
+  binary orbit from their current relative positions and velocities.
+- If the binary density / local density is higher than density_ratio, the main parameter of
+  the algorithm, the binary is registered, and its parameters are stored.
+- When looking at several successive snapshots, when a binary passed the density test once
+  it only needs to be bound to stay in the records as a binary, no need to be dense enough
+  at each step.
+
+The outcome is a python class called Binaries, useful to analyse binary populations.
+
+------------------------------------------------------------------------------------------------
+
+Dependencies:
+- StarFiddle
+- hdf5, h5py
+- mpicc
+
+How to install:
+
+Add the BinariesFinder directory to your PYTHONPATH:
+
+In bash, add this to your .bashrc
+   export PYTHONPATH = path/to/BinariesFinder: $PYTHONPATH
+Then source your .bashrc
+
+
+If you have sudo permissions:
+    - "sudo make" in the BinariesFinder directory
+    
+    - Try to import the module from anywhere:
+      Launch a python interpreter in any directory
+      and import binaries
+    
+    - If everything worked, you're all set
+
+/!\ If you encounter a "cannot open shared object" error, You might 
+want to run ldconfig to make sure the linker knows about the new 
+libraries. If that doesn't solve your problem, add /usr/local/lib to
+LD_LIBRARY_PATH in your .bashrc.
+
+
+If you don't have sudo permissions:
+
+    - Add to your .bashrc:
+      	  export LD_LIBRARY_PATH = path/to/BinariesFinder:$LD_LIBRARY_PATH
+          export BINARIESLIB = /path/to/BinariesFinder	
+
+      Then source it: "source ~/.bashrc"
+    
+    - "make local" in the path/to/BinariesFinder directory.
+    
+    - Try to import the module from anywhere:
+      Launch a python interpreter in any directory
+      and import binaries
+    
+    - If everything worked, you're all set.
+
+
+------------------------------------------------------------------------------------------------
+
+
+You can consult the documentation of the Binaries object in binaries.py for an
+explanation on how to use the module.
+
+The c module can be used without the python interface. To do so, if you didn't build
+the libraries with sudo permissions, you should add the BinariesFinder directory
+to the CPATH variable in your .bashrc, much like you did for LD_LIBRARY_PATH.
+
+In your c program, simply include binaries.h , then compile by adding
+at the end of the compile command
+   -lm -lsort -lkdtree -lbinaries
+
+
+April 2016
+
+Python code: Julien Dorval.
+
+Any questions: dorvaljulien@gmail.com
